@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker - Reports</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Base Styling */
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        line-height: 1.6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 2rem;
+      }
+
+      .reports {
+        max-width: 800px;
+        width: 100%;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .reports h2 {
+        text-align: center;
+        color: #3498db;
+        margin-bottom: 2rem;
+      }
+
+      .report-section {
+        margin-bottom: 2rem;
+      }
+
+      .report-section h3 {
+        font-size: 1.4rem;
+        color: #555;
+        margin-bottom: 1rem;
+      }
+
+      canvas {
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      #top-categories {
+        list-style: none;
+        padding: 0;
+      }
+
+      #top-categories li {
+        background: #eaf4fc;
+        padding: 0.8rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="reports">
+      <h2>Your Spending Insights</h2>
+
+      <!-- Monthly Spending Chart -->
+      <div class="report-section">
+        <h3>Monthly Spending Summary</h3>
+        <canvas id="monthly-spending-chart"></canvas>
+      </div>
+
+      <!-- Daily Average Spending -->
+      <div class="report-section">
+        <h3>Daily Spending Average</h3>
+        <p>
+          Your average daily spending is: <span id="daily-average">₹0.00</span>
+        </p>
+      </div>
+
+      <!-- Top Spending Categories -->
+      <div class="report-section">
+        <h3>Top Spending Categories</h3>
+        <ul id="top-categories"></ul>
+      </div>
+
+      <!-- Savings vs. Spending Chart -->
+      <div class="report-section">
+        <h3>Savings vs. Spending</h3>
+        <canvas id="savings-spending-chart"></canvas>
+      </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Fetch budget data from local storage
+        const foodBudget = parseFloat(localStorage.getItem("foodBudget")) || 0;
+        const housingBudget =
+          parseFloat(localStorage.getItem("housingBudget")) || 0;
+        const transportationBudget =
+          parseFloat(localStorage.getItem("transportationBudget")) || 0;
+        const entertainmentBudget =
+          parseFloat(localStorage.getItem("entertainmentBudget")) || 0;
+
+        // Calculate total expenses and daily average
+        const totalExpenses =
+          foodBudget +
+          housingBudget +
+          transportationBudget +
+          entertainmentBudget;
+        const daysInMonth = 30; // Adjust for specific months
+        const dailyAverage = totalExpenses / daysInMonth;
+
+        // Update daily average in the DOM
+        document.getElementById(
+          "daily-average"
+        ).textContent = `₹${dailyAverage.toFixed(2)}`;
+
+        // Populate top spending categories
+        const categories = [
+          { name: "Food", amount: foodBudget },
+          { name: "Housing", amount: housingBudget },
+          { name: "Transportation", amount: transportationBudget },
+          { name: "Entertainment", amount: entertainmentBudget },
+        ];
+        categories.sort((a, b) => b.amount - a.amount); // Sort by amount
+
+        const topCategoriesList = document.getElementById("top-categories");
+        categories.forEach((category) => {
+          if (category.amount > 0) {
+            const li = document.createElement("li");
+            li.textContent = `${category.name}: ₹${category.amount.toFixed(2)}`;
+            topCategoriesList.appendChild(li);
+          }
+        });
+
+        // Monthly Spending Chart
+        const monthlySpendingCtx = document
+          .getElementById("monthly-spending-chart")
+          .getContext("2d");
+        new Chart(monthlySpendingCtx, {
+          type: "bar",
+          data: {
+            labels: ["Food", "Housing", "Transportation", "Entertainment"],
+            datasets: [
+              {
+                label: "Monthly Spending (₹)",
+                data: [
+                  foodBudget,
+                  housingBudget,
+                  transportationBudget,
+                  entertainmentBudget,
+                ],
+                backgroundColor: ["#3498db", "#2ecc71", "#f1c40f", "#e74c3c"],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+
+        // Savings vs. Spending Chart
+        const savingsVsSpendingCtx = document
+          .getElementById("savings-spending-chart")
+          .getContext("2d");
+        const income = 50000; // Example total income, adjust as needed
+        const savings = income - totalExpenses;
+
+        new Chart(savingsVsSpendingCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["Savings", "Spending"],
+            datasets: [
+              {
+                label: "Savings vs Spending",
+                data: [savings, totalExpenses],
+                backgroundColor: ["#2ecc71", "#e74c3c"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker - Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Base Styling */
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background-color: #f4f4f9;
+        color: #333;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .dark-theme {
+        background-color: #121212;
+        color: #f4f4f9;
+      }
+
+      .settings {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .dark-theme .settings {
+        background: #1f1f1f;
+      }
+
+      h2 {
+        text-align: center;
+        color: #3498db;
+      }
+
+      label {
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      select,
+      button {
+        width: 100%;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        background-color: #3498db;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="settings">
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <label for="currency">Currency:</label>
+        <select id="currency" name="currency">
+          <option value="INR">INR</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+
+        <label for="theme">Theme:</label>
+        <select id="theme" name="theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+
+        <button type="submit">Save Settings</button>
+      </form>
+    </section>
+
+    <script>
+      // Apply saved settings on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedCurrency = localStorage.getItem("currency");
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedCurrency) {
+          document.getElementById("currency").value = savedCurrency;
+        }
+
+        if (savedTheme) {
+          document.getElementById("theme").value = savedTheme;
+          toggleTheme(savedTheme); // Apply theme on load
+        }
+      });
+
+      // Handle form submission
+      document
+        .getElementById("settings-form")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const selectedCurrency = document.getElementById("currency").value;
+          const selectedTheme = document.getElementById("theme").value;
+
+          // Store the settings in local storage
+          localStorage.setItem("currency", selectedCurrency);
+          localStorage.setItem("theme", selectedTheme);
+
+          // Apply the selected theme
+          toggleTheme(selectedTheme);
+
+          alert("Settings saved successfully!");
+        });
+
+      // Function to toggle theme
+      function toggleTheme(theme) {
+        if (theme === "dark") {
+          document.body.classList.add("dark-theme");
+        } else {
+          document.body.classList.remove("dark-theme");
+        }
+      }
+    </script>
+  </body>
+</html>
