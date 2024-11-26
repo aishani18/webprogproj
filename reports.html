@@ -12,16 +12,67 @@
         background-color: #f4f4f9;
         color: #333;
         line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Navbar Styling */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+      .navbar-brand a {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ecf0f1;
+        text-decoration: none;
+      }
+      .navbar-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+      }
+      .navbar-links a {
+        text-decoration: none;
+        color: #ecf0f1;
+      }
+      .navbar-links a:hover {
+        color: #3498db;
+      }
+      .navbar-account .login-btn {
+        padding: 0.5rem 1rem;
+        background-color: #3498db;
+        color: #ecf0f1;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+      }
+      .navbar-account .login-btn:hover {
+        background-color: #2980b9;
+      }
+
+      /* Main Content */
+      .content {
+        margin-top: 80px; /* to ensure content is not hidden behind navbar */
+        padding: 2rem;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 2rem;
+        flex-direction: column;
+        width: 100%;
+        max-width: 1200px;
+        margin: 100px auto;
       }
 
       .reports {
-        max-width: 800px;
         width: 100%;
         background: #fff;
         padding: 2rem;
@@ -61,57 +112,94 @@
         margin-bottom: 0.5rem;
         border-radius: 8px;
       }
+
+      .category-budget {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        background: #eaf4fc;
+        border-radius: 8px;
+      }
+
+      /* Responsive Styling */
+      @media (max-width: 768px) {
+        .navbar-links {
+          display: none;
+        }
+        .navbar-account {
+          display: flex;
+        }
+      }
     </style>
   </head>
   <body>
-    <section class="reports">
-      <h2>Your Spending Insights</h2>
-
-      <!-- Monthly Spending Chart -->
-      <div class="report-section">
-        <h3>Monthly Spending Summary</h3>
-        <canvas id="monthly-spending-chart"></canvas>
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <a href="#">ExpenseTracker</a>
       </div>
+      <ul class="navbar-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="budget.html">Budget</a></li>
+        <li><a href="daily_expense.html">Tracker</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li><a href="settings.html">Settings</a></li>
+      </ul>
+    </nav>
+    <div class="content">
+      <section class="reports">
+        <h2>Your Spending Insights</h2>
 
-      <!-- Daily Average Spending -->
-      <div class="report-section">
-        <h3>Daily Spending Average</h3>
-        <p>
-          Your average daily spending is: <span id="daily-average">₹0.00</span>
-        </p>
-      </div>
+        <!-- Monthly Spending Chart -->
+        <div class="report-section">
+          <h3>Monthly Spending Summary</h3>
+          <canvas id="monthly-spending-chart"></canvas>
+        </div>
 
-      <!-- Top Spending Categories -->
-      <div class="report-section">
-        <h3>Top Spending Categories</h3>
-        <ul id="top-categories"></ul>
-      </div>
+        <!-- Daily Average Spending -->
+        <div class="report-section">
+          <h3>Daily Spending Average</h3>
+          <p>
+            Your average daily spending is:
+            <span id="daily-average">₹0.00</span>
+          </p>
+        </div>
 
-      <!-- Savings vs. Spending Chart -->
-      <div class="report-section">
-        <h3>Savings vs. Spending</h3>
-        <canvas id="savings-spending-chart"></canvas>
-      </div>
-    </section>
+        <!-- Top Spending Categories -->
+        <div class="report-section">
+          <h3>Top Spending Categories</h3>
+          <ul id="top-categories"></ul>
+        </div>
+
+        <!-- Savings vs. Spending Chart -->
+        <div class="report-section">
+          <h3>Savings vs. Spending</h3>
+          <canvas id="savings-spending-chart"></canvas>
+        </div>
+
+        <!-- Budget Display Section -->
+        <div class="report-section">
+          <h3>Your Budget for Categories</h3>
+          <div id="category-budget-list"></div>
+        </div>
+      </section>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Fetch budget data from local storage
         const foodBudget = parseFloat(localStorage.getItem("foodBudget")) || 0;
+        const stationeryBudget =
+          parseFloat(localStorage.getItem("stationeryBudget")) || 0;
         const housingBudget =
           parseFloat(localStorage.getItem("housingBudget")) || 0;
-        const transportationBudget =
-          parseFloat(localStorage.getItem("transportationBudget")) || 0;
-        const entertainmentBudget =
-          parseFloat(localStorage.getItem("entertainmentBudget")) || 0;
+        const miscellaneousBudget =
+          parseFloat(localStorage.getItem("miscellaneousBudget")) || 0;
 
         // Calculate total expenses and daily average
         const totalExpenses =
-          foodBudget +
-          housingBudget +
-          transportationBudget +
-          entertainmentBudget;
+          foodBudget + stationeryBudget + housingBudget + miscellaneousBudget;
         const daysInMonth = 30; // Adjust for specific months
         const dailyAverage = totalExpenses / daysInMonth;
 
@@ -123,9 +211,9 @@
         // Populate top spending categories
         const categories = [
           { name: "Food", amount: foodBudget },
+          { name: "Stationery", amount: stationeryBudget },
           { name: "Housing", amount: housingBudget },
-          { name: "Transportation", amount: transportationBudget },
-          { name: "Entertainment", amount: entertainmentBudget },
+          { name: "Miscellaneous", amount: miscellaneousBudget },
         ];
         categories.sort((a, b) => b.amount - a.amount); // Sort by amount
 
@@ -145,15 +233,15 @@
         new Chart(monthlySpendingCtx, {
           type: "bar",
           data: {
-            labels: ["Food", "Housing", "Transportation", "Entertainment"],
+            labels: ["Food", "Stationery", "Housing", "Miscellaneous"],
             datasets: [
               {
                 label: "Monthly Spending (₹)",
                 data: [
                   foodBudget,
+                  stationeryBudget,
                   housingBudget,
-                  transportationBudget,
-                  entertainmentBudget,
+                  miscellaneousBudget,
                 ],
                 backgroundColor: ["#3498db", "#2ecc71", "#f1c40f", "#e74c3c"],
                 borderWidth: 1,
@@ -192,6 +280,24 @@
           options: {
             responsive: true,
           },
+        });
+
+        // Display category budgets
+        const categoryBudgetList = document.getElementById(
+          "category-budget-list"
+        );
+        const budgetDetails = [
+          { category: "Food", budget: foodBudget },
+          { category: "Stationery", budget: stationeryBudget },
+          { category: "Housing", budget: housingBudget },
+          { category: "Miscellaneous", budget: miscellaneousBudget },
+        ];
+
+        budgetDetails.forEach((item) => {
+          const div = document.createElement("div");
+          div.classList.add("category-budget");
+          div.innerHTML = `${item.category}: ₹${item.budget.toFixed(2)}`;
+          categoryBudgetList.appendChild(div);
         });
       });
     </script>
